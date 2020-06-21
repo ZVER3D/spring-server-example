@@ -1,3 +1,4 @@
+<#macro page>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -6,6 +7,7 @@
     <title>PogU</title>
   </head>
   <body>
-    <p>{{ name }}</p>
+    <#nested>
   </body>
 </html>
+</#macro>
