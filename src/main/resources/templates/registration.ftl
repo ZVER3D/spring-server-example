@@ -3,7 +3,7 @@
 
 <@c.page>
 <h1>Registration page</h1>
-<b>${message}</b>
+<b>${message?ifExists}</b>
 <@f.form "/registration" />
 <a href="/login">Login</a>
 </@c.page>
