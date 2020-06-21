@@ -1,3 +1,5 @@
+<#include "security.ftl">
+
 <#macro page>
 <!DOCTYPE html>
 <html lang="en">
@@ -9,7 +11,7 @@
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" 
       integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" 
       crossorigin="anonymous">
-    <title>PogU</title>
+    <title>Chat</title>
   </head>
   <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -32,13 +34,20 @@
           <li class="nav-item">
             <a class="nav-link" href="/registration">Register</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/user">Users</a>
-          </li>
+          <#if isAdmin>
+            <li class="nav-item">
+              <a class="nav-link" href="/user">Users</a>
+            </li>
+          </#if>
         </ul>
+        <div class="navbar-text mr-3">${name}</div>
+        <form action="logout" method="post">
+          <input type="hidden" name="_csrf" value="${ _csrf.token }" />
+          <input type="submit" value="Sign Out" class="btn btn-secondary" />
+        </form>
       </div>
     </nav>
-    <div class="container">
+    <div class="container mt-5">
       <#nested>
     </div>
     <script 
