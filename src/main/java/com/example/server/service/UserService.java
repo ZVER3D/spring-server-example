@@ -7,6 +7,7 @@ import com.sun.mail.smtp.SMTPSenderFailedException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -17,15 +18,22 @@ import java.util.stream.Collectors;
 public class UserService implements UserDetailsService {
   private final MailSender mailSender;
   private final UserRepo userRepo;
+  private final PasswordEncoder passwordEncoder;
 
-  public UserService(UserRepo userRepo, MailSender mailSender) {
+  public UserService(UserRepo userRepo, MailSender mailSender, PasswordEncoder passwordEncoder) {
     this.userRepo = userRepo;
     this.mailSender = mailSender;
+    this.passwordEncoder = passwordEncoder;
   }
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    return userRepo.findByUsername(username);
+    User user = userRepo.findByUsername(username);
+    if (user == null) {
+      throw new UsernameNotFoundException("Bad credentials");
+    }
+
+    return user;
   }
 
   public boolean addUser(User user) {
@@ -37,6 +45,7 @@ public class UserService implements UserDetailsService {
     user.setActive(false);
     user.setRoles(Collections.singleton(Role.USER));
     user.setActivationCode(UUID.randomUUID().toString());
+    user.setPassword(passwordEncoder.encode(user.getPassword()));
 
     userRepo.save(user);
 
@@ -95,7 +104,7 @@ public class UserService implements UserDetailsService {
   }
 
   public void updateProfile(User user, String password, String email) {
-    if (email != null && !email.equals(user.getEmail()) && !email.isEmpty()) {
+    if (!StringUtils.isEmpty(email) && !email.equals(user.getEmail())) {
       user.setEmail(email);
       user.setActivationCode(UUID.randomUUID().toString());
       user.setActive(false);
@@ -106,8 +115,8 @@ public class UserService implements UserDetailsService {
       }
     }
 
-    if (password != null && !password.isEmpty()) {
-      user.setPassword(password);
+    if (!StringUtils.isEmpty(password)) {
+      user.setPassword(passwordEncoder.encode(password));
     }
 
     userRepo.save(user);

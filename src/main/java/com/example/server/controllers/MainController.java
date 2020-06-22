@@ -7,13 +7,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 
 @Controller
@@ -44,17 +48,26 @@ public class MainController {
   @PostMapping
   public String postMessage(
       @AuthenticationPrincipal User user,
-      @RequestParam String text,
-      @RequestParam String tag,
-      @RequestParam MultipartFile file)
+      @Valid Message message,
+      @RequestParam MultipartFile file,
+      BindingResult bindingResult,
+      Model model)
       throws IOException {
-    Message message = new Message(text, tag, user);
+    message.setAuthor(user);
 
-    if (file != null && !file.getOriginalFilename().isEmpty()) {
+    if (bindingResult.hasErrors()) {
+      model.mergeAttributes(ControllerUtil.getErrors(bindingResult));
+      model.addAttribute("message", message);
+
+      return "index";
+    }
+
+    if (file != null && !StringUtils.isEmpty(file.getOriginalFilename())) {
       File uploadDir = new File(uploadPath);
       if (!uploadDir.exists()) {
         uploadDir.mkdir();
       }
+
       String uidFile = UUID.randomUUID().toString();
       uidFile += "." + file.getOriginalFilename();
       file.transferTo(new File(uploadPath + "/" + uidFile));
@@ -63,7 +76,8 @@ public class MainController {
     }
 
     messageRepo.save(message);
+    model.addAttribute("message", null);
 
-    return "redirect:/";
+    return "index";
   }
 }

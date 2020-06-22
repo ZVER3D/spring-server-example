@@ -4,9 +4,12 @@ import com.example.server.domain.User;
 import com.example.server.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+
+import javax.validation.Valid;
 
 @Controller
 public class RegistrationController {
@@ -22,9 +25,15 @@ public class RegistrationController {
   }
 
   @PostMapping("/registration")
-  public String register(User user, Model model) {
+  public String register(@Valid User user, BindingResult bindingResult, Model model) {
+    model.addAttribute("user", user);
+    if (bindingResult.hasErrors()) {
+      model.mergeAttributes(ControllerUtil.getErrors(bindingResult));
+      return "registration";
+    }
+
     if (!userService.addUser(user)) {
-      model.addAttribute("message", "User already exists");
+      model.addAttribute("usernameError", "User already exists");
       return "registration";
     }
 

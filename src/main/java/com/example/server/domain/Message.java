@@ -1,12 +1,9 @@
 package com.example.server.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import org.hibernate.validator.constraints.Length;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 
 @Entity
 public class Message {
@@ -14,8 +11,11 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @NotBlank(message = "Message cant be empty")
+    @Length(max = 2048, message = "Message is too long, more than 2kB")
     private String text;
 
+    @Length(max = 255, message = "Tag cant be longer than 255")
     private String tag;
 
     private String filename;
