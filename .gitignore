@@ -4,6 +4,9 @@ target/
 !**/src/main/**
 !**/src/test/**
 
+### Project Specific ###
+uploads/
+
 ### STS ###
 .apt_generated
 .classpath
