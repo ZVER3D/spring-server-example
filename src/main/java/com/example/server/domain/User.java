@@ -10,89 +10,109 @@ import java.util.Set;
 @Entity
 @Table(name = "usrs")
 public class User implements UserDetails {
-    private static final long serialVersionUID = 3483437281416859060L;
+  private static final long serialVersionUID = 3483437281416859060L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Long id;
 
-    private String username;
+  private String username;
 
-    private String password;
+  private String password;
 
-    private boolean active;
+  private boolean active;
 
-    @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"))
-    @Enumerated(EnumType.STRING)
-    private Set<Role> roles;
+  private String email;
 
-    public boolean isAdmin() {
-        return roles.contains(Role.ADMIN);
-    }
+  private String activationCode;
 
-    public String getUsername() {
-        return username;
-    }
+  @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
+  @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"))
+  @Enumerated(EnumType.STRING)
+  private Set<Role> roles;
 
-    public boolean isActive() {
-        return active;
-    }
+  public boolean isAdmin() {
+    return roles.contains(Role.ADMIN);
+  }
 
-    public void setActive(boolean active) {
-        this.active = active;
-    }
+  public String getUsername() {
+    return username;
+  }
 
-    public String getPassword() {
-        return password;
-    }
+  public boolean isActive() {
+    return active;
+  }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+  public void setActive(boolean active) {
+    this.active = active;
+  }
 
-    public void setUsername(String name) {
-        this.username = name;
-    }
+  public String getPassword() {
+    return password;
+  }
 
-    public Long getId() {
-        return id;
-    }
+  public void setPassword(String password) {
+    this.password = password;
+  }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+  public void setUsername(String name) {
+    this.username = name;
+  }
 
-    public Set<Role> getRoles() {
-        return roles;
-    }
+  public Long getId() {
+    return id;
+  }
 
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
-    }
+  public void setId(Long id) {
+    this.id = id;
+  }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return getRoles();
-    }
+  public Set<Role> getRoles() {
+    return roles;
+  }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
+  public void setRoles(Set<Role> roles) {
+    this.roles = roles;
+  }
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return getRoles();
+  }
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
+  @Override
+  public boolean isAccountNonExpired() {
+    return true;
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return isActive();
-    }
+  @Override
+  public boolean isAccountNonLocked() {
+    return true;
+  }
+
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return true;
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return isActive();
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public String getActivationCode() {
+    return activationCode;
+  }
+
+  public void setActivationCode(String activationCode) {
+    this.activationCode = activationCode;
+  }
 }
