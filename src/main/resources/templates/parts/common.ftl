@@ -28,23 +28,32 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/login">Login</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/registration">Register</a>
-                </li>
+                <#if !user??>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/registration">Register</a>
+                    </li>
+                </#if>
                 <#if isAdmin>
                     <li class="nav-item">
                         <a class="nav-link" href="/user">Users</a>
                     </li>
                 </#if>
+                <#if user??>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/user/profile">Profile</a>
+                    </li>
+                </#if>
             </ul>
-            <div class="navbar-text mr-3">${name}</div>
-            <form action="logout" method="post">
-                <input type="hidden" name="_csrf" value="${ _csrf.token }"/>
-                <input type="submit" value="Sign Out" class="btn btn-secondary"/>
-            </form>
+            <#if user??>
+                <div class="navbar-text mr-3">${name}</div>
+                <form action="/logout" method="post">
+                    <input type="hidden" name="_csrf" value="${ _csrf.token }"/>
+                    <input type="submit" value="Sign Out" class="btn btn-secondary"/>
+                </form>
+            </#if>
         </div>
     </nav>
     <div class="container mt-5">

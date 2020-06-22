@@ -18,48 +18,52 @@ import java.util.UUID;
 
 @Controller
 public class MainController {
-    @Value("${upload.path}")
-    private String uploadPath;
+  @Value("${upload.path}")
+  private String uploadPath;
 
-    private final MessageRepo messageRepo;
+  private final MessageRepo messageRepo;
 
-    public MainController(MessageRepo messageRepo) {
-        this.messageRepo = messageRepo;
+  public MainController(MessageRepo messageRepo) {
+    this.messageRepo = messageRepo;
+  }
+
+  @GetMapping
+  public String index(@RequestParam(defaultValue = "") String filter, Model model) {
+    Iterable<Message> messages;
+    if (filter == null || filter.isEmpty()) {
+      messages = messageRepo.findAll();
+    } else {
+      messages = messageRepo.findByTag(filter);
+    }
+    model.addAttribute("messages", messages);
+    model.addAttribute("filter", filter);
+
+    return "index";
+  }
+
+  @PostMapping
+  public String postMessage(
+      @AuthenticationPrincipal User user,
+      @RequestParam String text,
+      @RequestParam String tag,
+      @RequestParam MultipartFile file)
+      throws IOException {
+    Message message = new Message(text, tag, user);
+
+    if (file != null && !file.getOriginalFilename().isEmpty()) {
+      File uploadDir = new File(uploadPath);
+      if (!uploadDir.exists()) {
+        uploadDir.mkdir();
+      }
+      String uidFile = UUID.randomUUID().toString();
+      uidFile += "." + file.getOriginalFilename();
+      file.transferTo(new File(uploadPath + "/" + uidFile));
+
+      message.setFilename(uidFile);
     }
 
-    @GetMapping
-    public String index(@RequestParam(defaultValue = "") String filter, Model model) {
-        Iterable<Message> messages;
-        if (filter == null || filter.isEmpty()) {
-            messages = messageRepo.findAll();
-        } else {
-            messages = messageRepo.findByTag(filter);
-        }
-        model.addAttribute("messages", messages);
-        model.addAttribute("filter", filter);
+    messageRepo.save(message);
 
-        return "index";
-    }
-
-    @PostMapping
-    public String postMessage(@AuthenticationPrincipal User user, @RequestParam String text, @RequestParam String tag,
-                              @RequestParam MultipartFile file) throws IOException {
-        Message message = new Message(text, tag, user);
-
-        if (file != null && !file.getOriginalFilename().isEmpty()) {
-            File uploadDir = new File(uploadPath);
-            if (!uploadDir.exists()) {
-                uploadDir.mkdir();
-            }
-            String uidFile = UUID.randomUUID().toString();
-            uidFile += "." + file.getOriginalFilename();
-            file.transferTo(new File(uploadPath + "/" + uidFile));
-
-            message.setFilename(uidFile);
-        }
-
-        messageRepo.save(message);
-
-        return "redirect:/";
-    }
+    return "redirect:/";
+  }
 }
