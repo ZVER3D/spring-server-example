@@ -4,6 +4,7 @@ import com.example.server.domain.Role;
 import com.example.server.domain.User;
 import com.example.server.repos.UserRepo;
 import com.sun.mail.smtp.SMTPSenderFailedException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -25,6 +26,9 @@ public class UserService implements UserDetailsService {
     this.mailSender = mailSender;
     this.passwordEncoder = passwordEncoder;
   }
+
+  @Value("${hostname}")
+  private String hostname;
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -66,8 +70,8 @@ public class UserService implements UserDetailsService {
         String.format(
             "Hello, %s! \n"
                 + "Welcome to The Chat, \n"
-                + "Please, visit this link to activate your account: http://localhost:8080/activate/%s",
-            user.getUsername(), user.getActivationCode());
+                + "Please, visit this link to activate your account: http://%s/activate/%s",
+            user.getUsername(), hostname, user.getActivationCode());
 
     mailSender.send(user.getEmail(), "Account activation", message);
   }

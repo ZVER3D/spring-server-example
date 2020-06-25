@@ -50,6 +50,16 @@
                 </#if>
             </div>
         </div>
+        <#if isRegister>
+            <div class="form-group row">
+                <div class="h-captcha" data-sitekey="9f5637f9-78b8-40bb-96cb-a3e39b5e6e67"></div>
+            </div>
+            <#if captchaError??>
+                <div class="alert alert-danger" role="alert">
+                    ${captchaError}
+                </div>
+            </#if>
+        </#if>
         <div class="form-group row">
             <button type="submit" class="btn btn-primary">
                 <#if !isRegister>Sign In<#else>Register</#if>
