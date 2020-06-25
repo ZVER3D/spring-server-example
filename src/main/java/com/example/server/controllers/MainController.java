@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @Controller
@@ -62,6 +63,15 @@ public class MainController {
       return "index";
     }
 
+    saveFile(message, file);
+
+    messageRepo.save(message);
+    model.addAttribute("message", null);
+
+    return "index";
+  }
+
+  private void saveFile(Message message, MultipartFile file) throws IOException {
     if (file != null && !StringUtils.isEmpty(file.getOriginalFilename())) {
       File uploadDir = new File(uploadPath);
       if (!uploadDir.exists()) {
@@ -74,10 +84,46 @@ public class MainController {
 
       message.setFilename(uidFile);
     }
+  }
+
+  @GetMapping("/user-messages/{user}")
+  public String userMessages(
+      @AuthenticationPrincipal User currentUser,
+      @PathVariable User user,
+      @RequestParam(required = false) Message message,
+      Model model) {
+    Set<Message> messages = user.getMessages();
+    model.addAttribute("messages", messages);
+    model.addAttribute("message", message);
+    model.addAttribute("isCurrentUser", currentUser.equals(user));
+
+    return "userMessages";
+  }
+
+  @PostMapping("/user-messages/{user}")
+  public String updateMessage(
+      @AuthenticationPrincipal User currentUser,
+      @PathVariable Long user,
+      @RequestParam("id") Message message,
+      @RequestParam String text,
+      @RequestParam String tag,
+      @RequestParam MultipartFile file) throws IOException {
+    if (!message.getAuthor().equals(currentUser)) {
+      return "redirect:/user-messages/" + currentUser.getId();
+    }
+
+    if (!StringUtils.isEmpty(text)) {
+      message.setText(text);
+    }
+
+    if (!StringUtils.isEmpty(tag)) {
+      message.setTag(tag);
+    }
+
+    saveFile(message, file);
 
     messageRepo.save(message);
-    model.addAttribute("message", null);
 
-    return "index";
+    return "redirect:/user-messages/" + user;
   }
 }
