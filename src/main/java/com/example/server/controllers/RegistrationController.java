@@ -1,7 +1,6 @@
 package com.example.server.controllers;
 
 import com.example.server.domain.User;
-import com.example.server.domain.dto.CaptchaResponseDto;
 import com.example.server.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -11,11 +10,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.validation.Valid;
-import java.util.HashMap;
 
 @Controller
 public class RegistrationController {
@@ -45,20 +42,20 @@ public class RegistrationController {
       Model model) {
     model.addAttribute("user", user);
 
-    HashMap<String, String> postRequest = new HashMap<>();
-    postRequest.put("response", captchaResponse);
-    postRequest.put("secret", secret);
-    try {
-      CaptchaResponseDto response =
-          restTemplate.postForObject(CAPTCHA_URL, postRequest, CaptchaResponseDto.class);
-      if (response == null || !response.isSuccess()) {
-        model.addAttribute("captchaError", "Fill captcha");
-        return "registration";
-      }
-    } catch (RestClientException e) {
-      model.addAttribute("captchaError", "Fill captcha");
-      return "registration";
-    }
+//    HashMap<String, String> postRequest = new HashMap<>();
+//    postRequest.put("response", captchaResponse);
+//    postRequest.put("secret", secret);
+//    try {
+//      CaptchaResponseDto response =
+//          restTemplate.postForObject(CAPTCHA_URL, postRequest, CaptchaResponseDto.class);
+//      if (response == null || !response.isSuccess()) {
+//        model.addAttribute("captchaError", "Fill captcha");
+//        return "registration";
+//      }
+//    } catch (RestClientException e) {
+//      model.addAttribute("captchaError", "Fill captcha");
+//      return "registration";
+//    }
 
     if (bindingResult.hasErrors()) {
       model.mergeAttributes(ControllerUtil.getErrors(bindingResult));

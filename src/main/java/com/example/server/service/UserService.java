@@ -3,7 +3,7 @@ package com.example.server.service;
 import com.example.server.domain.Role;
 import com.example.server.domain.User;
 import com.example.server.repos.UserRepo;
-import com.sun.mail.smtp.SMTPSenderFailedException;
+import com.sun.mail.smtp.SMTPSendFailedException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -56,7 +56,7 @@ public class UserService implements UserDetailsService {
     if (!StringUtils.isEmpty(user.getEmail())) {
       try {
         sendMessage(user);
-      } catch (SMTPSenderFailedException e) {
+      } catch (SMTPSendFailedException e) {
         userRepo.delete(user);
         return false;
       }
@@ -65,15 +65,14 @@ public class UserService implements UserDetailsService {
     return true;
   }
 
-  private void sendMessage(User user) throws SMTPSenderFailedException {
+  private void sendMessage(User user) throws SMTPSendFailedException {
     String message =
         String.format(
-            "Hello, %s! \n"
-                + "Welcome to The Chat, \n"
-                + "Please, visit this link to activate your account: http://%s/activate/%s",
+            "Hi, %s! \n"
+                + "Please, activate your account: http://%s/activate/%s",
             user.getUsername(), hostname, user.getActivationCode());
 
-    mailSender.send(user.getEmail(), "Account activation", message);
+    mailSender.send(user.getEmail(), "Activation", message);
   }
 
   public boolean activateUser(String code) {
@@ -114,7 +113,7 @@ public class UserService implements UserDetailsService {
       user.setActive(false);
       try {
         sendMessage(user);
-      } catch (SMTPSenderFailedException e) {
+      } catch (SMTPSendFailedException e) {
         return;
       }
     }
@@ -122,6 +121,18 @@ public class UserService implements UserDetailsService {
     if (!StringUtils.isEmpty(password)) {
       user.setPassword(passwordEncoder.encode(password));
     }
+
+    userRepo.save(user);
+  }
+
+  public void subscribe(User currentUser, User user) {
+    user.getSubscribers().add(currentUser);
+
+    userRepo.save(user);
+  }
+
+  public void unsubscribe(User currentUser, User user) {
+    user.getSubscribers().remove(currentUser);
 
     userRepo.save(user);
   }

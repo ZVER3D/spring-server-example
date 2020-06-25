@@ -29,7 +29,7 @@
                         type="text"
                         name="tag"
                         class="form-control mb-2 ${(tagError??)?string('is-invalid', '')}"
-                        value="<#if message??>${message.text}</#if>"
+                        value="<#if message??>${message.tag}</#if>"
                         placeholder="Tag"/>
                 <#if tagError??>
                     <div class="invalid-feedback">

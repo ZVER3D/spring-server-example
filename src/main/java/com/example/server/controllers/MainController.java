@@ -60,7 +60,7 @@ public class MainController {
       model.mergeAttributes(ControllerUtil.getErrors(bindingResult));
       model.addAttribute("message", message);
 
-      return "index";
+      return "redirect:/";
     }
 
     saveFile(message, file);
@@ -68,7 +68,7 @@ public class MainController {
     messageRepo.save(message);
     model.addAttribute("message", null);
 
-    return "index";
+    return "redirect:/";
   }
 
   private void saveFile(Message message, MultipartFile file) throws IOException {
@@ -90,12 +90,21 @@ public class MainController {
   public String userMessages(
       @AuthenticationPrincipal User currentUser,
       @PathVariable User user,
-      @RequestParam(required = false) Message message,
-      Model model) {
+      Model model,
+      @RequestParam(required = false) Message message) {
+    if (user == null) {
+      return "redirect:/";
+    }
+
     Set<Message> messages = user.getMessages();
+
     model.addAttribute("messages", messages);
     model.addAttribute("message", message);
     model.addAttribute("isCurrentUser", currentUser.equals(user));
+    model.addAttribute("isSubscriber", user.getSubscribers().contains(currentUser));
+    model.addAttribute("userChannel", user);
+    model.addAttribute("subscriptionsCount", user.getSubscriptions().size());
+    model.addAttribute("subscribersCount", user.getSubscribers().size());
 
     return "userMessages";
   }
@@ -105,9 +114,10 @@ public class MainController {
       @AuthenticationPrincipal User currentUser,
       @PathVariable Long user,
       @RequestParam("id") Message message,
-      @RequestParam String text,
-      @RequestParam String tag,
-      @RequestParam MultipartFile file) throws IOException {
+      @RequestParam("text") String text,
+      @RequestParam("tag") String tag,
+      @RequestParam("file") MultipartFile file)
+      throws IOException {
     if (!message.getAuthor().equals(currentUser)) {
       return "redirect:/user-messages/" + currentUser.getId();
     }

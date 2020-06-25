@@ -7,14 +7,13 @@ import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
 @Entity
 @Table(name = "usrs")
 public class User implements UserDetails {
-  private static final long serialVersionUID = 3483437281416859060L;
-
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
@@ -29,9 +28,6 @@ public class User implements UserDetails {
   @Email(message = "Email should be valid")
   private String email;
 
-  @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  private Set<Message> messages;
-
   private boolean active;
 
   private String activationCode;
@@ -40,6 +36,23 @@ public class User implements UserDetails {
   @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"))
   @Enumerated(EnumType.STRING)
   private Set<Role> roles;
+
+  @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private Set<Message> messages;
+
+  @ManyToMany
+  @JoinTable(
+      name = "user_subscriptions",
+      joinColumns = {@JoinColumn(name = "channel_id")},
+      inverseJoinColumns = {@JoinColumn(name = "subscriber_id")})
+  private Set<User> subscribers = new HashSet<>();
+
+  @ManyToMany
+  @JoinTable(
+      name = "user_subscriptions",
+      joinColumns = {@JoinColumn(name = "subscriber_id")},
+      inverseJoinColumns = {@JoinColumn(name = "channel_id")})
+  private Set<User> subscriptions = new HashSet<>();
 
   @Override
   public boolean equals(Object o) {
@@ -145,5 +158,21 @@ public class User implements UserDetails {
 
   public void setMessages(Set<Message> messages) {
     this.messages = messages;
+  }
+
+  public Set<User> getSubscribers() {
+    return subscribers;
+  }
+
+  public void setSubscribers(Set<User> subscribers) {
+    this.subscribers = subscribers;
+  }
+
+  public Set<User> getSubscriptions() {
+    return subscriptions;
+  }
+
+  public void setSubscriptions(Set<User> subscriptions) {
+    this.subscriptions = subscriptions;
   }
 }
