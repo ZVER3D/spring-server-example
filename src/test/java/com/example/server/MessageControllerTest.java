@@ -1,6 +1,6 @@
 package com.example.server;
 
-import com.example.server.controllers.MainController;
+import com.example.server.controllers.MessageController;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,10 +31,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Sql(
     value = {"/create-messages-after.sql", "/create-user-after.sql"},
     executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-public class MainControllerTest {
+public class MessageControllerTest {
   @Autowired private MockMvc mockMvc;
 
-  @Autowired private MainController controller;
+  @Autowired private MessageController controller;
 
   @Test
   public void mainPage() throws Exception {

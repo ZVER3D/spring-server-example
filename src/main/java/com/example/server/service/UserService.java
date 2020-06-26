@@ -17,13 +17,13 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserService implements UserDetailsService {
-  private final MailSender mailSender;
+  private final MailService mailService;
   private final UserRepo userRepo;
   private final PasswordEncoder passwordEncoder;
 
-  public UserService(UserRepo userRepo, MailSender mailSender, PasswordEncoder passwordEncoder) {
+  public UserService(UserRepo userRepo, MailService mailService, PasswordEncoder passwordEncoder) {
     this.userRepo = userRepo;
-    this.mailSender = mailSender;
+    this.mailService = mailService;
     this.passwordEncoder = passwordEncoder;
   }
 
@@ -72,7 +72,7 @@ public class UserService implements UserDetailsService {
                 + "Please, activate your account: http://%s/activate/%s",
             user.getUsername(), hostname, user.getActivationCode());
 
-    mailSender.send(user.getEmail(), "Activation", message);
+    mailService.send(user.getEmail(), "Activation", message);
   }
 
   public boolean activateUser(String code) {

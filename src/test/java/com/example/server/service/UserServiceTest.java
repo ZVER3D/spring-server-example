@@ -17,10 +17,10 @@ import static org.mockito.Mockito.mock;
 
 class UserServiceTest {
   private final UserRepo userRepo = mock(UserRepo.class);
-  private final MailSender mailSender = mock(MailSender.class);
+  private final MailService mailService = mock(MailService.class);
   private final PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
 
-  private final UserService userService = new UserService(userRepo, mailSender, passwordEncoder);
+  private final UserService userService = new UserService(userRepo, mailService, passwordEncoder);
 
   @Test
   void addUser() {
@@ -36,7 +36,7 @@ class UserServiceTest {
     assertEquals(user.getUsername(), "John Doe");
 
     Mockito.verify(userRepo, Mockito.times(1)).save(user);
-    Mockito.verify(mailSender, Mockito.times(1))
+    Mockito.verify(mailService, Mockito.times(1))
         .send(
             ArgumentMatchers.eq(user.getEmail()),
             ArgumentMatchers.eq("Activation"),
@@ -55,7 +55,7 @@ class UserServiceTest {
     assertFalse(isUserCreated);
 
     Mockito.verify(userRepo, Mockito.never()).save(ArgumentMatchers.any(User.class));
-    Mockito.verify(mailSender, Mockito.never())
+    Mockito.verify(mailService, Mockito.never())
         .send(
             ArgumentMatchers.anyString(),
             ArgumentMatchers.anyString(),
