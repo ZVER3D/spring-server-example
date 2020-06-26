@@ -12,6 +12,7 @@
                 integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
                 crossorigin="anonymous"/>
         <script src="https://hcaptcha.com/1/api.js" async="async" defer="defer"></script>
+        <script src="https://kit.fontawesome.com/62655b3a15.js" crossorigin="anonymous"></script>
         <title>Chat</title>
     </head>
     <body>

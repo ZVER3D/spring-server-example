@@ -1,79 +1,96 @@
 package com.example.server.domain;
 
+import com.example.server.domain.util.MessageHelper;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class Message {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Long id;
 
-    @NotBlank(message = "Message cant be empty")
-    @Length(max = 2048, message = "Message is too long, more than 2kB")
-    private String text;
+  @NotBlank(message = "Message cant be empty")
+  @Length(max = 2048, message = "Message is too long, more than 2kB")
+  private String text;
 
-    @Length(max = 255, message = "Tag cant be longer than 255")
-    private String tag;
+  @Length(max = 255, message = "Tag cant be longer than 255")
+  private String tag;
 
-    private String filename;
+  private String filename;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
-    private User author;
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "user_id")
+  private User author;
 
-    public Message(String text, String tag, User user) {
-        this.text = text;
-        this.tag = tag;
-        this.author = user;
-    }
+  @ManyToMany
+  @JoinTable(
+      name = "message_likes",
+      joinColumns = {@JoinColumn(name = "message_id")},
+      inverseJoinColumns = {@JoinColumn(name = "user_id")})
+  private Set<User> likes = new HashSet<>();
 
-    public Message() {
-    }
+  public Message(String text, String tag, User user) {
+    this.text = text;
+    this.tag = tag;
+    this.author = user;
+  }
 
-    public String getFilename() {
-        return filename;
-    }
+  public Message() {}
 
-    public void setFilename(String filename) {
-        this.filename = filename;
-    }
+  public String getFilename() {
+    return filename;
+  }
 
-    public String getAuthorName() {
-        return author != null ? author.getUsername() : "<anon>";
-    }
+  public void setFilename(String filename) {
+    this.filename = filename;
+  }
 
-    public User getAuthor() {
-        return author;
-    }
+  public String getAuthorName() {
+    return MessageHelper.getAuthorName(author);
+  }
 
-    public void setAuthor(User author) {
-        this.author = author;
-    }
+  public User getAuthor() {
+    return author;
+  }
 
-    public String getText() {
-        return text;
-    }
+  public void setAuthor(User author) {
+    this.author = author;
+  }
 
-    public String getTag() {
-        return tag;
-    }
+  public String getText() {
+    return text;
+  }
 
-    public void setTag(String tag) {
-        this.tag = tag;
-    }
+  public String getTag() {
+    return tag;
+  }
 
-    public void setText(String text) {
-        this.text = text;
-    }
+  public void setTag(String tag) {
+    this.tag = tag;
+  }
 
-    public Long getId() {
-        return id;
-    }
+  public void setText(String text) {
+    this.text = text;
+  }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public Set<User> getLikes() {
+    return likes;
+  }
+
+  public void setLikes(Set<User> likes) {
+    this.likes = likes;
+  }
 }

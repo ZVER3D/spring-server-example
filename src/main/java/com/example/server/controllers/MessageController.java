@@ -2,6 +2,7 @@ package com.example.server.controllers;
 
 import com.example.server.domain.Message;
 import com.example.server.domain.User;
+import com.example.server.domain.dto.MessageDto;
 import com.example.server.repos.MessageRepo;
 import com.example.server.service.MessageService;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,15 +15,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 import java.util.UUID;
 
 @Controller
@@ -40,13 +42,14 @@ public class MessageController {
 
   @GetMapping
   public String index(
+      @AuthenticationPrincipal User user,
       @RequestParam(defaultValue = "") String filter,
       @PageableDefault(
               sort = {"id"},
               direction = Sort.Direction.DESC)
           Pageable pageable,
       Model model) {
-    Page<Message> page = messageService.messageList(filter, pageable);
+    Page<MessageDto> page = messageService.messageList(user, filter, pageable);
 
     model.addAttribute("page", page);
     model.addAttribute("url", "/");
@@ -109,7 +112,7 @@ public class MessageController {
       return "redirect:/";
     }
 
-    Page<Message> page = messageService.messageListForUser(author, pageable);
+    Page<MessageDto> page = messageService.messageListForUser(currentUser, author, pageable);
 
     model.addAttribute("page", page);
     model.addAttribute("message", message);
@@ -149,5 +152,27 @@ public class MessageController {
     messageRepo.save(message);
 
     return "redirect:/user-messages/" + user;
+  }
+
+  @GetMapping("/messages/{message}/like")
+  public String like(
+      @AuthenticationPrincipal User user,
+      @PathVariable Message message,
+      RedirectAttributes redirectAttributes,
+      @RequestHeader(required = false) String referer) {
+    Set<User> likes = message.getLikes();
+
+    if (likes.contains(user)) {
+      likes.remove(user);
+    } else {
+      likes.add(user);
+    }
+
+    messageRepo.save(message);
+
+    UriComponents components = UriComponentsBuilder.fromHttpUrl(referer).build();
+    components.getQueryParams().forEach(redirectAttributes::addAttribute);
+
+    return "redirect:" + components.getPath();
   }
 }
