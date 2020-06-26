@@ -4,6 +4,10 @@ import com.example.server.domain.Message;
 import com.example.server.domain.User;
 import com.example.server.repos.MessageRepo;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,14 +37,22 @@ public class MainController {
   }
 
   @GetMapping
-  public String index(@RequestParam(defaultValue = "") String filter, Model model) {
-    Iterable<Message> messages;
+  public String index(
+      @RequestParam(defaultValue = "") String filter,
+      @PageableDefault(
+              sort = {"id"},
+              direction = Sort.Direction.DESC)
+          Pageable pageable,
+      Model model) {
+    Page<Message> page;
     if (filter == null || filter.isEmpty()) {
-      messages = messageRepo.findAll();
+      page = messageRepo.findAll(pageable);
     } else {
-      messages = messageRepo.findByTag(filter);
+      page = messageRepo.findByTag(filter, pageable);
     }
-    model.addAttribute("messages", messages);
+
+    model.addAttribute("page", page);
+    model.addAttribute("url", "/");
     model.addAttribute("filter", filter);
 
     return "index";

@@ -1,13 +1,15 @@
 <#include "security.ftl">
+<#import "pager.ftl" as p>
 
-<ul style="padding: 0;" class="card-columns">
-    <#list messages as message>
-        <li class="card my-3">
+<@p.pager url page />
+<ul style="padding: 0;" class="card-columns" id="messages">
+    <#list page.content as message>
+        <li class="card my-3" data-id="${message.id}">
             <#if message.filename??>
-                <img src="/img/${message.filename}" class="card-img-top" alt="">
+                <img src="/img/${message.filename}" class="card-img-top" alt=""/>
             </#if>
             <div class="m-2">
-                <span>${message.text}</span><br>
+                <span>${message.text}</span><br/>
                 <i>#${message.tag}</i>
             </div>
             <div class="card-footer text-muted">
